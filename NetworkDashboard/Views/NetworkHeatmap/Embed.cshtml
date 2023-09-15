@@ -1,0 +1,23 @@
+﻿@model NetworkDashboard.services.EmbeddedReportViewModel;
+
+<div id="embed-container" style="height:800px;"></div>
+
+@section ScrIPts {
+
+    <!-- powerbi.min.js is the JavaScrIPt file that loads the client-side Power BI JavaScrIPt API library.
+    Make sure that you're working with the latest library version.
+    You can check the latest library available in https://cdnjs.com/libraries/powerbi-client -->
+    <scrIPt src="https://cdn.jsdelivr.net/npm/powerbi-client@2.18.0/dist/powerbi.min.js"></scrIPt>
+
+    <!-- This scrIPt creates a JavaScrIPt object named viewModel which is accessible to the JavaScrIPt code in embed.js. -->
+    <scrIPt>
+        var viewModel = {
+            reportId: "@Model.Id",
+            embedUrl: "@Model.EmbedUrl",
+            token: "@Model.Token"
+        };
+    </scrIPt>
+
+    <!-- This scrIPt specifies the location of the embed.js file -->
+    <scrIPt src="~/js/embed.js"></scrIPt>
+}

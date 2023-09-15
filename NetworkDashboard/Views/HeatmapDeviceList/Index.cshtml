@@ -1,0 +1,394 @@
+﻿@{
+    ViewData["Title"] = "Heatmap device List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    HeatmapDatabase heatmapDatabase = new HeatmapDatabase();
+    IEnumerable<Networkdevice> networkdeviceList = await heatmapDatabase.GetNetworkdeviceList();
+    var username = User.Identity?.Name.Split("@")[0];
+    var index = 1;
+}
+<style type='text/css'>
+    .modal-dialog-fluid {
+        max-width: inherit;
+        width: 50%;
+    }
+</style>
+<!-- Modal to show the form to add new device-->
+<div class='modal fade' id='NewdeviceModal' tabindex='-1' role='dialog' aria-labelledby='NewdeviceModal' aria-hidden='true'>
+    <div class='modal-dialog' role='document'>
+        <div class='modal-content'>
+            <div class='modal-header'>
+                <h5 class='modal-title'>Add New Network device</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class='modal-body'>
+                <form class="needs-validation" id="NewdeviceForm" novalidate>
+                    <label>Column1</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-user" id="NewdeviceColumn1"
+                               placeholder="Ex.">
+                    </div>
+                    <label>Column2</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-user" id="NewdeviceColumn2"
+                               placeholder="Ex.">
+                    </div>
+                    <label>Column3</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-user" id="NewdeviceColumn3"
+                               placeholder="Ex.">
+                    </div>
+                    <label>Column4</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-user" id="NewdeviceColumn4"
+                               placeholder="Ex.">
+                    </div>
+                    <label>device<span style="color:red">*</span></label>
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-user" id="NewdeviceName"
+                               placeholder="Ex." required>
+                        <div class="invalid-feedback">
+                            device is required.
+                        </div>
+                    </div>
+                    <label>Column6 Address<span style="color:red">*</span></label>
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-user" id="NewdeviceColumn6"
+                               placeholder="Ex." required>
+                        <div class="invalid-feedback">
+                            Column6 address is required.
+                        </div>
+                    </div>
+                    <a class="btn btn-primary btn-user btn-block" id="SubmitNewdevice">
+                        Add device
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal to show the form to add new device-->
+<div class='modal fade' id='EditdeviceModal' tabindex='-1' role='dialog' aria-labelledby='EditdeviceModal' aria-hidden='true'>
+    <div class='modal-dialog' role='document'>
+        <div class='modal-content'>
+            <div class='modal-header'>
+                <h5 class='modal-title'>Edit Network device</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class='modal-body'>
+                <form class="needs-validation" id="EditdeviceForm" novalidate>
+                    <label>Column1</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-user" id="EditdeviceColumn1"
+                               placeholder="Ex.">
+                    </div>
+                    <label>Column2</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-user" id="EditdeviceColumn2"
+                               placeholder="Ex.">
+                    </div>
+                    <label>Column3</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-user" id="EditdeviceColumn3"
+                               placeholder="Ex.">
+                    </div>
+                    <label>Column4</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-user" id="EditdeviceColumn4"
+                               placeholder="Ex.">
+                    </div>
+                    <label>device</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-user" id="EditdeviceName"
+                               placeholder="Ex." disabled>
+                    </div>
+                    <label>Column6 Address<span style="color:red">*</span></label>
+                    <div class="form-group">
+                        <input type="text" class="form-control form-control-user" id="EditdeviceColumn6"
+                               placeholder="Ex." required>
+                        <div class="invalid-feedback">
+                            Column6 address is required.
+                        </div>
+                    </div>
+                    <a class="btn btn-primary btn-user btn-block" id="SubmitUpdatedevice">
+                        Update device
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal to show the loading animation -->
+<div class='modal fade' id='LoadingModal' tabindex='-1' role='dialog' aria-labelledby='LoadingModal' aria-hidden='true' data-backdrop='static' data-keyboard='false'>
+    <div class='modal-dialog' role='document'>
+        <div class='modal-content'>
+            <div class='modal-body'>
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal to show the information-->
+<div class='modal fade' id='InformationModal' tabindex='-1' role='dialog' aria-labelledby='InformationModal' aria-hidden='true' data-backdrop='static' data-keyboard='false'>
+    <div class='modal-dialog' role='document'>
+        <div class='modal-content'>
+            <div class='modal-body'>
+                <div class="text-center">
+                    <h1 class="h4 text-gray-900 mb-4" id="InformationText"></h1>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-primary btn-user btn-block ReloadList">
+                    Reload List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal to confirm deletion of a device-->
+<div class='modal fade' id='DeleteModal' tabindex='-1' role='dialog' aria-labelledby='DeleteModal' aria-hidden='true' data-backdrop='static' data-keyboard='false'>
+    <div class='modal-dialog' role='document'>
+        <div class='modal-content'>
+            <div class='modal-body'>
+                <div class="text-center">
+                    <h1 class="h4 text-gray-900 mb-4">Are you sure to remove device <b id="deviceName"></b> from the list?</h1>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-danger btn-user btn-block" id="Deletedevice">
+                    Confirm
+                </a>
+                <div class="my-2"></div>
+                <a class="btn btn-primary btn-user btn-block" data-dismiss="modal">
+                    Cancel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <p class="mb-4">
+        <button type="button" class="btn btn-primary my-2 my-sm-0" id="AddNewdevice">Add New device</button>
+    </p>
+    <input type="hidden" id="username" value="@username">
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Network device List</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Edit</th>
+                            <th>Column1</th>
+                            <th>Column2</th>
+                            <th>Column3</th>
+                            <th>Column4</th>
+                            <th>device</th>
+                            <th>Column6</th>
+                            <th>Column7</th>
+                            <th>Column8</th>
+                            <th>Column9</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (Networkdevice networkdevice in networkdeviceList.ToList())
+                        {
+                        <tr>
+                            <td class="number"></td>
+                                <td>
+                                    <a class="btn btn-info btn-icon-split" onclick='EditdeviceForm("@networkdevice.device")'>
+                                        <span class="text">Edit</span>
+                                    </a>
+                                </td>
+                            <td>@networkdevice.Column1</td>
+                            <td>@networkdevice.Column2</td>
+                            <td>@networkdevice.Column3</td>
+                            <td>@networkdevice.Column4</td>
+                            <td>@networkdevice.device</td>
+                            <td>@networkdevice.Column6</td>
+                            <td>@networkdevice.Column7</td>
+                            <td>@networkdevice.Column8</td>                         
+                                    @if (networkdevice.Column10 == 1)
+                                    {
+                                    <td>Pingable</td>
+                                    }
+                                    else
+                                    {
+                                    <td>Not Pingable</td>
+                                    }
+                            <td>
+                                    <a class="btn btn-danger btn-icon-split" onclick='ConfirmDeletion("@networkdevice.device")'>
+                                    <span class="icon text-white-50">
+                                        <i class="fas fa-trash"></i>
+                                    </span>
+                                    <span class="text">Delete</span>
+                                </a>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#dataTable').DataTable({
+            "lengthMenu": [[-1, 50, 25, 10], ["All", 50, 25, 10]],
+            order: [[2, 'asc']]
+        });
+        let n = 0;
+        $(".number").each(function () {
+            $(this).html(++n);
+        })
+        $("#dataTable").on('draw.dt', function () {
+            let n = 0;
+            $(".number").each(function () {
+                $(this).html(++n);
+            })
+        })
+    });
+    $("#AddNewdevice").click(function () {
+        $('#NewdeviceModal').modal('show');
+    });
+    $("#SubmitNewdevice").click(function () {
+        var form = document.getElementById('NewdeviceForm');
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        form.classList.add('was-validated');
+        if ($('#NewdeviceName').val() && $('#NewdeviceColumn6').val()) {
+            $('#NewdeviceModal').modal('hide');
+            var url = '/HeatmapdeviceList/AddNewNetworkdevice?device=' + $('#NewdeviceName').val() + '&Column6=' + $('#NewdeviceColumn6').val() + '&Column7=' + $('#username').val() + '&Column3=' + $('#NewdeviceColumn3').val() + '&Column1=' + $('#NewdeviceColumn1').val() + '&Column2=' + $('#NewdeviceColumn2').val() + '&Column4=' + $('#NewdeviceColumn4').val();
+            
+            $.ajax(url, {
+                type: 'POST',
+                beforeSend: function () {
+                    $('#LoadingModal').modal('show');
+                },
+                success: function (data, status, xhr) {
+                    $('#InformationText').html(data);
+                    $('#LoadingModal').modal('hide');
+                    $('#InformationModal').modal('show');
+                },
+                error: function (jqXhr, textStatus, errorMessage) {
+                    $('#InformationText').html("Failed to add device with error message: " + errorMessage);
+                    $('#LoadingModal').modal('hide');
+                    $('#InformationModal').modal('show');
+                }
+            });
+        }
+       
+        
+    });
+    $("#SubmitUpdatedevice").click(function () {
+        var form = document.getElementById('EditdeviceForm');
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        form.classList.add('was-validated');
+        if ($('#EditdeviceName').val() && $('#EditdeviceColumn6').val()) {
+            $('#EditdeviceModal').modal('hide');
+            var url = '/HeatmapdeviceList/EditNetworkdevice?device=' + $('#EditdeviceName').val() + '&Column6=' + $('#EditdeviceColumn6').val() + '&Column3=' + $('#EditdeviceColumn3').val() + '&Column3=' + $('#EditdeviceColumn3').val() + '&Column1=' + $('#EditdeviceColumn1').val() + '&Column2=' + $('#EditdeviceColumn2').val() + '&Column4=' + $('#EditdeviceColumn4').val();
+            $.ajax(url, {
+                type: 'POST',
+                beforeSend: function () {
+                    $('#LoadingModal').modal('show');
+                },
+                success: function (data, status, xhr) {
+                    $('#InformationText').html(data);
+                    $('#LoadingModal').modal('hide');
+                    $('#InformationModal').modal('show');
+                },
+                error: function (jqXhr, textStatus, errorMessage) {
+                    $('#InformationText').html("Failed to update device information with error message: " + errorMessage);
+                    $('#LoadingModal').modal('hide');
+                    $('#InformationModal').modal('show');
+                }
+            });
+        }
+
+
+    });
+    $(".ReloadList").click(function () {
+        location.reload();
+    });
+    $("#Deletedevice").click(function () {
+        $('#DeleteModal').modal('hide');
+        $.ajax('/HeatmapdeviceList/DeleteNetworkdevice?networkdeviceID=' + $('#deviceName').text(), {
+            type: 'POST',
+            beforeSend: function () {
+                $('#LoadingModal').modal('show');
+            },
+            success: function (data, status, xhr) {
+                $('#InformationText').html(data);
+                $('#LoadingModal').modal('hide');
+                $('#InformationModal').modal('show');
+            },
+            error: function (jqXhr, textStatus, errorMessage) {
+                $('#InformationText').html("Failed to add device with error message: " + errorMessage);
+                $('#LoadingModal').modal('hide');
+                $('#InformationModal').modal('show');
+            }
+        });
+        
+    });
+    function ConfirmDeletion(deviceName) {
+        $('#deviceName').text(deviceName);
+        $('#DeleteModal').modal('show');
+    }
+    function EditdeviceForm(deviceName) {
+        $.ajax('/HeatmapdeviceList/GetNetworkdevice?networkdeviceName=' + deviceName, {
+            type: 'POST',
+            beforeSend: function () {
+                $('#LoadingModal').modal('show');
+            },
+            success: function (data, status, xhr) {
+                $('#LoadingModal').modal('hide');
+                $('#EditdeviceModal').modal('show');
+                const obj = JSON.parse(data);
+                $('#EditdeviceName').val(obj.device);
+                $('#EditdeviceColumn6').val(obj.Column6);
+                $('#EditdeviceColumn3').val(obj.Column3);
+                $('#EditdeviceColumn1').val(obj.Column1);
+                $('#EditdeviceColumn2').val(obj.Column2);
+                $('#EditdeviceColumn4').val(obj.Column4);
+            },
+            error: function (jqXhr, textStatus, errorMessage) {
+                $('#InformationText').html("Failed to get device with error message: " + errorMessage);
+                $('#LoadingModal').modal('hide');
+                $('#InformationModal').modal('show');
+            }
+        });
+    }
+    
+    
+</script>

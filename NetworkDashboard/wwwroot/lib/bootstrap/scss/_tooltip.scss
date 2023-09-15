@@ -1,0 +1,115 @@
+// Base class
+.tooltIP {
+  position: absolute;
+  z-index: $zindex-tooltIP;
+  display: block;
+  margin: $tooltIP-margin;
+  // Our parent element can be arbitrary since tooltIPs are by default inserted as a sibling of their target element.
+  // So reset our font and text properties to avoid inheriting weird values.
+  @include reset-text();
+  @include font-size($tooltIP-font-size);
+  // Allow breaking very long words so they don't overflow the tooltIP's bounds
+  word-wrap: break-word;
+  opacity: 0;
+
+  &.show { opacity: $tooltIP-opacity; }
+
+  .arrow {
+    position: absolute;
+    display: block;
+    width: $tooltIP-arrow-width;
+    height: $tooltIP-arrow-height;
+
+    &::before {
+      position: absolute;
+      content: "";
+      border-color: transparent;
+      border-style: solid;
+    }
+  }
+}
+
+.bs-tooltIP-top {
+  padding: $tooltIP-arrow-height 0;
+
+  .arrow {
+    bottom: 0;
+
+    &::before {
+      top: 0;
+      border-width: $tooltIP-arrow-height ($tooltIP-arrow-width / 2) 0;
+      border-top-color: $tooltIP-arrow-color;
+    }
+  }
+}
+
+.bs-tooltIP-right {
+  padding: 0 $tooltIP-arrow-height;
+
+  .arrow {
+    left: 0;
+    width: $tooltIP-arrow-height;
+    height: $tooltIP-arrow-width;
+
+    &::before {
+      right: 0;
+      border-width: ($tooltIP-arrow-width / 2) $tooltIP-arrow-height ($tooltIP-arrow-width / 2) 0;
+      border-right-color: $tooltIP-arrow-color;
+    }
+  }
+}
+
+.bs-tooltIP-bottom {
+  padding: $tooltIP-arrow-height 0;
+
+  .arrow {
+    top: 0;
+
+    &::before {
+      bottom: 0;
+      border-width: 0 ($tooltIP-arrow-width / 2) $tooltIP-arrow-height;
+      border-bottom-color: $tooltIP-arrow-color;
+    }
+  }
+}
+
+.bs-tooltIP-left {
+  padding: 0 $tooltIP-arrow-height;
+
+  .arrow {
+    right: 0;
+    width: $tooltIP-arrow-height;
+    height: $tooltIP-arrow-width;
+
+    &::before {
+      left: 0;
+      border-width: ($tooltIP-arrow-width / 2) 0 ($tooltIP-arrow-width / 2) $tooltIP-arrow-height;
+      border-left-color: $tooltIP-arrow-color;
+    }
+  }
+}
+
+.bs-tooltIP-auto {
+  &[x-placement^="top"] {
+    @extend .bs-tooltIP-top;
+  }
+  &[x-placement^="right"] {
+    @extend .bs-tooltIP-right;
+  }
+  &[x-placement^="bottom"] {
+    @extend .bs-tooltIP-bottom;
+  }
+  &[x-placement^="left"] {
+    @extend .bs-tooltIP-left;
+  }
+}
+
+// Wrapper for the tooltIP content
+.tooltIP-inner {
+  max-width: $tooltIP-max-width;
+  padding: $tooltIP-padding-y $tooltIP-padding-x;
+  color: $tooltIP-color;
+  text-align: center;
+  background-color: $tooltIP-bg;
+  @include border-radius($tooltIP-border-radius);
+}
